@@ -181,7 +181,7 @@ We can see that the ratios and confidence intervals match what we have found in 
 
 # Exercise 1:2
 
-
+## 1
 ```{r}
 tab2<- as.table(rbind(c(1198, 1493), c(557, 1278)))
 dimnames(tab2) <- list(gender = c("men", "women"),result = c("Admitted","Rejected"))
@@ -211,4 +211,44 @@ riskratio(tab2)
 From this we see that the probability of men being admitted is $1.26\%$ times as high as for women, with the confidence interval being $[1.20, 1.31]$.
 
 
+## 2
+```{r}
+tab3 <- round(tab2/10.0)
+loglm(~gender+result,tab3)
+```
+It seems that dividing the cell counts by 10 divides the statistics by 10.
+Because we rounded the table to the nearest integer, this does not perfectly divide by 10.
+
+```{r}
+oddsratio(tab3)
+riskratio(tab3)
+```
+The risk ratio and odds ratio stay the same. In this case, there are small differences because we rounded our table.
+
+Now we repeat this by dividing by $100$
+```{r}
+tab4 <- round(tab2/100)
+loglm(~gender+result,tab4)
+```
+The test statistics have been divided by 100, of course with some rounding errors. With this, the p-value increases.
+
+```{r}
+oddsratio(tab4)
+riskratio(tab4)
+```
+The odds and risk ratios stay the same, with some rounding errors.
+
+
+
+
+
+```{r}
+tab5<- as.table(rbind(c(1000, 1000), c(5, 5)))
+dimnames(tab5) <- list(gender = c("women", "men"),opinion = c("favor","against"))
+addmargins(tab5)
+addmargins(prop.table(tab5,1),2)
+```
+```{r}
+oddsratio(tab5,rev = "col")
+```
 
