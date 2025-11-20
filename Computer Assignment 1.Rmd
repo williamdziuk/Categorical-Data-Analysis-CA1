@@ -9,3 +9,94 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+# Exercise 1:1 
+```{r}
+abortion_data <- data.frame(
+    sex = c("Male","Female"),
+    in_favor = c(319,309),
+    against = c(281,191)
+
+)
+print(abortion_data)
+```
+
+## 1. Calculate the percentage in favor and against legal abortion for men and women separately.
+```{r}
+#Men in favor
+p_11 <- abortion_data[1,2]/(abortion_data[1,2] + abortion_data[1,3])
+#Men against
+p_12 <- abortion_data[1,3]/(abortion_data[1,2] + abortion_data[1,3])
+#Women in favor
+p_21 <- abortion_data[2,2]/(abortion_data[2,2] + abortion_data[2,3])
+#Women against
+p_22 <- abortion_data[2,3]/(abortion_data[2,2] + abortion_data[2,3])
+
+p_11
+p_12
+p_21
+p_22
+
+```
+## 2.
+We define the null hypothesis as $H_0: p_{1,1} = p_{2,1}$ and the alternative hypothesis as $H_a: p_{1,1} \neq p_{2,1}$
+
+#TODO: use lecture 2 formula> slide 19
+Pearsons $\chi^2$ statistic:$X^2 = \sum_i\sum_j\frac{(O_{ij}-E_{ij})^2}{E_{ij}} = N\sum_{ij}(p_{i+}p_{+j}\bigg( \frac{(O_{ij}/N) - p_{i+}p_{+j}}{p_{i+}p_{+j}} \bigg)^2$
+Where
+$p_i+ = \sum_j \frac{O_{i,j}}{N}$
+and 
+$p_+j = \sum_i \frac{O_{i,j}}{N}$
+and
+$O_{i,j}$ is the observed cell count.
+and $N$ is the total sample size.
+
+Likelihood Ratio Test $G^2 = -2\ln \frac{\text{sup}_{H_a}l(p_0)}{\text{sup}_{H_0}l(p_1, p_2)} = -2(n_{+1}\ln(\frac{n_{+1}}{N}) + n_{+2}\ln(\frac{n_{+2}}{N})) + 2(\sum_{ij} n_{ij} \ln(\frac{n_{ij}}{N}))$
+
+We reject the null hypothesis if $p(X^2 > \chi^2_1) < \alpha$ for the Pearson's $\chi^2$ test and if $p(G^2 > \chi^2_1) < \alpha$ for the Likelihood ratio test.
+
+Let's do a Pearson's $\chi^2$ test with $\alpha = 0.05$.
+```{r}
+pearsons_test <- 0
+n = abortion_data[1,2] + abortion_data[1,3] + abortion_data[2,2] + abortion_data[2,3]
+for (i in 1:2){
+  n_i <- abortion_data[i, 2] + abortion_data[i,3]
+  for (j in 2:3){
+    n_ij <- abortion_data[i,j]
+    n_j <- abortion_data[1, j] + abortion_data[2, j]
+    mu_ij = n_i * n_j / n
+    pearsons_test = pearsons_test + (n_ij - mu_ij)^2/mu_ij
+  }
+}
+pearsons_test
+1 - pchisq(pearsons_test, df = 1)
+```
+So we reject $H_0$ at level $\alpha = 0.05$ using the Pearsons Test. 
+
+And the Likelihood ratio test.
+```{r}
+LR_test <- 0
+n = abortion_data[1,2] + abortion_data[1,3] + abortion_data[2,2] + abortion_data[2,3]
+for (i in 1:2){
+  n_i <- abortion_data[i, 2] + abortion_data[i,3]
+  for (j in 2:3){
+    n_ij <- abortion_data[i,j]
+    n_j <- abortion_data[1, j] + abortion_data[2, j]
+    mu_ij = n_i * n_j / n
+    LR_test = LR_test + 2* n_ij * log(n_ij / mu_ij)
+  }
+}
+LR_test
+1 - pchisq(LR_test, df = 1)
+```
+We would also reject the null hypothesis using the Likelihood ratio test.
+## 3.
+
+
+
+
+
+
+
+
+
