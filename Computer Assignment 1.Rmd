@@ -1,0 +1,11 @@
+---
+title: "Computer Assignment 1"
+author: "Will Dziuk and Andri Thor Stefanson"
+date: "2025-11-20"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
