@@ -40,16 +40,15 @@ p_22
 ## 2.
 We define the null hypothesis as $H_0: p_{1,1} = p_{2,1}$ and the alternative hypothesis as $H_a: p_{1,1} \neq p_{2,1}$
 
-#TODO: use lecture 2 formula> slide 19
 
-Pearson's $\chi^2$ statistic:$X^2 = \sum_i\sum_j\frac{(O_{ij}-E_{ij})^2}{E_{ij}} = N\sum_{ij}(p_{i+}p_{+j}\bigg( \frac{(O_{ij}/N) - p_{i+}p_{+j}}{p_{i+}p_{+j}} \bigg)^2$
+Pearson's $\chi^2$ statistic:$X^2 = \sum_{i,j} \frac{(N_{ij} - \hat \mu_{ij})^2}{\hat \mu_{ij}}$
 Where
 - $p_i+ = \sum_j \frac{O_{i,j}}{N}$
 - $p_+j = \sum_i \frac{O_{i,j}}{N}$
 - $O_{i,j}$ is the observed cell count.
 - $N$ is the total sample size.
 
-Likelihood Ratio Test $G^2 = -2\ln \frac{\text{sup}_{H_a}l(p_0)}{\text{sup}_{H_0}l(p_1, p_2)} = -2(n_{+1}\ln(\frac{n_{+1}}{N}) + n_{+2}\ln(\frac{n_{+2}}{N})) + 2(\sum_{ij} n_{ij} \ln(\frac{n_{ij}}{N}))$
+Likelihood Ratio Test $G^2 = -2\ln \frac{\text{sup}_{H_a}l(p_0)}{\text{sup}_{H_0}l(p_1, p_2)} = -2(n_{+1}\ln(\frac{n_{+1}}{N}) + n_{+2}\ln(\frac{n_{+2}}{N})) + 2(\sum_{ij} n_{ij} \ln(\frac{n_{ij}}{\hat \mu_{ij}}))$
 
 We reject the null hypothesis if $p(X^2 > \chi^2_1) < \alpha$ for the Pearson's $\chi^2$ test and if $p(G^2 > \chi^2_1) < \alpha$ for the Likelihood ratio test.
 
