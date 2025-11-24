@@ -3,14 +3,17 @@ title: "Computer Assignment 1"
 author: "Will Dziuk and Andri Þór Stefánson"
 date: "2025-11-20"
 output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Exercise 1:1
 
-# Exercise 1:1 
 ```{r}
 abortion_data <- data.frame(
     sex = c("Male","Female"),
@@ -21,7 +24,8 @@ abortion_data <- data.frame(
 print(abortion_data)
 ```
 
-## 1. Calculate the percentage in favor and against legal abortion for men and women separately.
+## 1.
+
 ```{r}
 #Men in favor
 p_11 <- abortion_data[1,2]/(abortion_data[1,2] + abortion_data[1,3])
@@ -37,23 +41,29 @@ p_12
 p_21
 p_22
 ```
+
 ## 2.
-We define the null hypothesis as $H_0: p_{1,1} = p_{2,1}$ and the alternative hypothesis as $H_a: p_{1,1} \neq p_{2,1}$
 
-#TODO: use lecture 2 formula> slide 19
+We define the null hypothesis as $H_0: p_{1,1} = p_{2,1}$ and the
+alternative hypothesis as $H_a: p_{1,1} \neq p_{2,1}$
 
-Pearson's $\chi^2$ statistic:$X^2 = \sum_i\sum_j\frac{(O_{ij}-E_{ij})^2}{E_{ij}} = N\sum_{ij}(p_{i+}p_{+j}\bigg( \frac{(O_{ij}/N) - p_{i+}p_{+j}}{p_{i+}p_{+j}} \bigg)^2$
-Where
-- $p_i+ = \sum_j \frac{O_{i,j}}{N}$
-- $p_+j = \sum_i \frac{O_{i,j}}{N}$
-- $O_{i,j}$ is the observed cell count.
-- $N$ is the total sample size.
+#TODO: use lecture 2 formula\> slide 19
 
-Likelihood Ratio Test $G^2 = -2\ln \frac{\text{sup}_{H_a}l(p_0)}{\text{sup}_{H_0}l(p_1, p_2)} = -2(n_{+1}\ln(\frac{n_{+1}}{N}) + n_{+2}\ln(\frac{n_{+2}}{N})) + 2(\sum_{ij} n_{ij} \ln(\frac{n_{ij}}{N}))$
+Pearson's $\chi^2$
+statistic:$X^2 = \sum_i\sum_j\frac{(O_{ij}-E_{ij})^2}{E_{ij}} = N\sum_{ij}(p_{i+}p_{+j}\bigg( \frac{(O_{ij}/N) - p_{i+}p_{+j}}{p_{i+}p_{+j}} \bigg)^2$
+Where - $p_i+ = \sum_j \frac{O_{i,j}}{N}$ -
+$p_+j = \sum_i \frac{O_{i,j}}{N}$ - $O_{i,j}$ is the observed cell
+count. - $N$ is the total sample size.
 
-We reject the null hypothesis if $p(X^2 > \chi^2_1) < \alpha$ for the Pearson's $\chi^2$ test and if $p(G^2 > \chi^2_1) < \alpha$ for the Likelihood ratio test.
+Likelihood Ratio Test
+$G^2 = -2\ln \frac{\text{sup}_{H_a}l(p_0)}{\text{sup}_{H_0}l(p_1, p_2)} = -2(n_{+1}\ln(\frac{n_{+1}}{N}) + n_{+2}\ln(\frac{n_{+2}}{N})) + 2(\sum_{ij} n_{ij} \ln(\frac{n_{ij}}{N}))$
+
+We reject the null hypothesis if $p(X^2 > \chi^2_1) < \alpha$ for the
+Pearson's $\chi^2$ test and if $p(G^2 > \chi^2_1) < \alpha$ for the
+Likelihood ratio test.
 
 Let's do a Pearson's $\chi^2$ test with $\alpha = 0.05$.
+
 ```{r}
 pearsons_test <- 0
 n = abortion_data[1,2] + abortion_data[1,3] + abortion_data[2,2] + abortion_data[2,3]
@@ -69,9 +79,11 @@ for (i in 1:2){
 pearsons_test
 1 - pchisq(pearsons_test, df = 1)
 ```
-So we reject $H_0$ at level $\alpha = 0.05$ using the Pearsons Test. 
 
-And the Likelihood ratio test.
+So we reject $H_0$ at level $\alpha = 0.05$ using the Pearson's Test.
+
+Now we do the Likelihood ratio test.
+
 ```{r}
 LR_test <- 0
 n = abortion_data[1,2] + abortion_data[1,3] + abortion_data[2,2] + abortion_data[2,3]
@@ -87,16 +99,22 @@ for (i in 1:2){
 LR_test
 1 - pchisq(LR_test, df = 1)
 ```
-We would also reject the null hypothesis using the Likelihood ratio test.
+
+We would also reject the null hypothesis using the Likelihood ratio
+test.
 
 ## 3.
-Odds Ratio (between males and females): $\hat\theta = \frac{n_{11}n_{22}}{n_{12}n_{21}}$
 
-95% Confidence Interval for $\log(\hat\theta)$: $[\log(\hat\theta) - 1.96 \cdot SE , \log(\hat\theta) + 1.96 \cdot SE] = [a,b]$
-Where $SE = \sqrt{Var[\log(\hat\theta)]} = \sqrt{\frac{1}{n_{11}} + \frac{1}{n_{12}} + \frac{1}{n_{21}} + \frac{1}{n_{22}}}$
+Odds Ratio (between males and females):
+$\hat\theta = \frac{n_{11}n_{22}}{n_{12}n_{21}}$
 
-So the $95%$ confidence interval for $\theta$ is $[e^a, e^b]$
+95% Confidence Interval for $\log(\hat\theta)$:
+$[\log(\hat\theta) - 1.96 \cdot SE , \log(\hat\theta) + 1.96 \cdot SE] = [a,b]$
 
+Where
+$SE = \sqrt{Var[\log(\hat\theta)]} = \sqrt{\frac{1}{n_{11}} + \frac{1}{n_{12}} + \frac{1}{n_{21}} + \frac{1}{n_{22}}}$
+
+So the 95% confidence interval for $\theta$ is $[e^a, e^b]$
 
 ```{r}
 n_11 <- abortion_data[1,2]
@@ -115,16 +133,23 @@ ci <- c(exp(log_lower), exp(log_upper))
 theta_hat
 ci
 ```
-According to this, the odds of men being in favor of abortion is $0.7$ times that of women. Our confidence interval tells us that the true odds ratio lies between $0.55$ and $0.89$ with $95%$ confidence.
 
+According to this, the odds of men being in favor of abortion is $0.7$
+times that of women. Our confidence interval tells us that the true odds
+ratio lies between $0.55$ and $0.89$ with 95% confidence.
 
 ## 4
 
 The risk ratio: $\hat{r}=\frac{n_{11}n_{2+}}{n_{21}n_{1+}}$
 
-The confidence interval for $\log(\hat{r}) = [\log(\hat r ) - 1.96 \cdot SE , \log(\hat r) + 1.96 \cdot SE] = [a,b]$
+The confidence interval for
+$\log(\hat{r}) = [\log(\hat r ) - 1.96 \cdot SE , \log(\hat r) + 1.96 \cdot SE] = [a,b]$
 
-Where $SE = \sqrt{Var(\log(\hat r))} = \sqrt{\frac{1-n_{11}/n_{1+}}{n_{11}} + \frac{1-n_{21}/n_{2+}}{n_{21}}}$
+Where
+$SE = \sqrt{Var(\log(\hat r))} = \sqrt{\frac{1-n_{11}/n_{1+}}{n_{11}} + \frac{1-n_{21}/n_{2+}}{n_{21}}}$
+
+So the 95% confidence interval for $\hat r$ is $[e^a, e^b]$
+
 ```{r}
 n_1 <- n_11 + n_12
 n_2 <- n_21 + n_22
@@ -141,21 +166,26 @@ r_hat
 ci
 ```
 
-According to this, the risk of men being in favor of abortion is $0.86$ times that of women. Our confidence interval tells us that the true risk ratio lies between $0.78$ and $0.95$ with $95%$ confidence.
-
+According to this, the risk of men being in favor of abortion is $0.86$
+times that of women. Our confidence interval tells us that the true risk
+ratio lies between $0.78$ and $0.95$ with $95%$ confidence.
 
 ## 5
-Now we will use the built in R functions to calculate the values and statistics from questions 1-4.
+
+Now we will use the built in R functions to calculate the values and
+statistics from questions 1-4.
+
 ```{r}
 tab1<- as.table(rbind(c(309, 191), c(319, 281)))
 dimnames(tab1) <- list(gender = c("women", "men"),opinion = c("favor","against"))
 addmargins(tab1)
 addmargins(prop.table(tab1,1),2)
 ```
+
 We can see that the probabilies match what we had found in question 1.
 
-
 Calculate $X^2$, $G^2$ and p-values
+
 ```{r}
 chisq.test(tab1,correct=FALSE)
 library(MASS) # the MASS package must have been installed
@@ -164,22 +194,26 @@ loglm(~gender+opinion,tab1)
 # Loglinear models will be handled in assignment 3 but with the function glm instead of loglm.
 ```
 
-Again we can see that the test statistics and p-values match what we had found above. 
+Again we can see that the test statistics and p-values match what we had
+found above.
 
-Now we calculate risk/odds ratio and confidence interval using R functions
+Now we calculate risk/odds ratio and confidence interval using R
+functions
+
 ```{r}
 library(epitools)
 oddsratio(tab1, method = "wald", rev="col")
 riskratio(tab1,rev="col")
 
 ```
-We can see that the ratios and confidence intervals match what we have found in questions 3 and 4
 
-
+We can see that the ratios and confidence intervals match what we have
+found in questions 3 and 4
 
 # Exercise 1:2
 
 ## 1
+
 ```{r}
 tab2<- as.table(rbind(c(1198, 1493), c(557, 1278)))
 dimnames(tab2) <- list(gender = c("men", "women"),result = c("Admitted","Rejected"))
@@ -187,61 +221,86 @@ addmargins(tab2)
 addmargins(prop.table(tab2,1),2)
 ```
 
+We are performing the Pearsons test and Likelihood ratio test to compare
+the probability of admission for men vs women. Our null hypothesis is
+$H_0: p_{1,1} = p_{2,1}$ and our alternative Hypothesis is
+$H_a: p_{1,1} \neq p_{2,1}$. We will use $\alpha = 0.05$
 
-We are performing the Pearsons test and Likelihood ratio test to compare the probability of admission for men vs women. Our null hypothesis is $H_0: p_{1,1} = p_{2,1}$ and our alternative Hypothesis is $H_a: p_{1,1} \neq p_{2,1}$. We will use $\alpha = 0.05$
 ```{r}
 loglm(~gender+result,tab2)
 ```
-As seen above the p-values from these tests are very small. Therefore we reject the null hypothesis.
 
+As seen above the p-values from these tests are very small. Therefore we
+reject the null hypothesis.
 
-Now we will calculate the odds ratio between the admission of men and women.
+Now we will calculate the odds ratio between the admission of men and
+women.
+
 ```{r}
 oddsratio(tab2, method = "wald")
 ```
-The odds of men being admitted is 1.84 that of women. The $95\%$ confidence interval $[1.62, 2.09]$.
 
-Now we will calculate the risk ratio, between the admission probability of men to that of women.
+The odds of men being admitted is 1.84 that of women. The $95\%$
+confidence interval $[1.62, 2.09]$.
+
+Now we will calculate the risk ratio, between the admission probability
+of men to that of women.
 
 ```{r}
 riskratio(tab2)
 ```
-From this we see that the probability of men being admitted is $1.26\%$ times as high as for women, with the confidence interval being $[1.20, 1.31]$.
 
+From this we see that the probability of men being admitted is $1.26\%$
+times as high as for women, with the confidence interval being
+$[1.20, 1.31]$.
 
 ## 2
+
 ```{r}
 tab3 <- round(tab2/10.0)
 loglm(~gender+result,tab3)
 ```
-It seems that dividing the cell counts by 10 divides the statistics by 10.
-Because we rounded the table to the nearest integer, this does not perfectly divide by 10.
+
+It seems that dividing the cell counts by 10 divides the statistics by
+10. Because we rounded the table to the nearest integer, this does not
+perfectly divide by 10.
 
 ```{r}
 oddsratio(tab3)
 riskratio(tab3)
 ```
-The risk ratio and odds ratio stay the same. In this case, there are small differences because we rounded our table.
+
+The risk ratio and odds ratio stay the same. In this case, there are
+small differences because we rounded our table.
 
 Now we repeat this by dividing by $100$
+
 ```{r}
 tab4 <- round(tab2/100)
 loglm(~gender+result,tab4)
 ```
-The test statistics have been divided by 100, of course with some rounding errors. With this, the p-value increases.
+
+The test statistics have been divided by 100, of course with some
+rounding errors. With this, the p-value increases.
 
 ```{r}
 oddsratio(tab4)
 riskratio(tab4)
 ```
+
 The odds and risk ratios stay the same, with some rounding errors.
 
 ## 3
-We saw in the earlier task, that scaling all data in a table will scale the test statistic in the same way, while keeping the odds ratio the same.
 
-We can use this information to create a table, with an odds ratio close to 1, but where the odds ratio significantly differs from 1.
+We saw in the earlier task, that scaling all data in a table will scale
+the test statistic in the same way, while keeping the odds ratio the
+same.
 
-This is done by using a large sample size, where the ratios between groups are relatively close, but still differ slightly.
+We can use this information to create a table, with an odds ratio close
+to 1, but where the odds ratio significantly differs from 1.
+
+This is done by using a large sample size, where the ratios between
+groups are relatively close, but still differ slightly.
 
 ```{r}
 tab5<- as.table(rbind(c(150000, 10000), c(157000, 10000)))
@@ -249,12 +308,22 @@ dimnames(tab5) <- list(gender = c("women", "men"),opinion = c("favor","against")
 addmargins(tab5)
 addmargins(prop.table(tab5,1),2)
 ```
+
 ```{r}
 oddsratio(tab5,rev = "col")
 loglm(gender~opinion, data=tab5)
 ```
-From this, we see that the odds ratio is 1.05, but the p-value for the null hypothesis: $H_0: p_{1,1} = p_{1,2}$ is zero, indicating that the effect of gender on the opinion is statistically significant.
 
-While the effect is statistically significant, wording it like that can be misleading, as it suggests that there is an **important** association, while in reality the effect is trivial.
+From this, we see that the odds ratio is 1.05, but the p-value for the
+null hypothesis: $H_0: p_{1,1} = p_{1,2}$ is zero, indicating that the
+effect of gender on the opinion is statistically significant.
 
-In a case like this, it's good to have the odds ratio, along with the confidence interval, which we can see is $[1.017, 1.77]$. This tells the ratio is indeed very close to 1, but not exactly 1. while if we had only looked at the p-value, we might assume that the odds ratio is not close to 1.
+While the effect is statistically significant, wording it like that can
+be misleading, as it suggests that there is an **important**
+association, while in reality the effect is trivial.
+
+In a case like this, it's good to have the odds ratio, along with the
+confidence interval, which we can see is $[1.017, 1.77]$. This tells the
+ratio is indeed very close to 1, but not exactly 1. while if we had only
+looked at the p-value, we might assume that the odds ratio is not close
+to 1.
