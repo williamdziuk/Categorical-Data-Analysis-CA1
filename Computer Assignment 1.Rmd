@@ -47,16 +47,19 @@ p_22
 We define the null hypothesis as $H_0: p_{1,1} = p_{2,1}$ and the
 alternative hypothesis as $H_a: p_{1,1} \neq p_{2,1}$
 
-#TODO: use lecture 2 formula\> slide 19
+Pearson's $\chi^2$ statistic: $X^2 = \sum_{i,j} \frac{(N_{ij} - \hat \mu_{ij})^2}{\hat \mu_{ij}}$
+Where
 
-Pearson's $\chi^2$
-statistic:$X^2 = \sum_i\sum_j\frac{(O_{ij}-E_{ij})^2}{E_{ij}} = N\sum_{ij}(p_{i+}p_{+j}\bigg( \frac{(O_{ij}/N) - p_{i+}p_{+j}}{p_{i+}p_{+j}} \bigg)^2$
-Where - $p_i+ = \sum_j \frac{O_{i,j}}{N}$ -
-$p_+j = \sum_i \frac{O_{i,j}}{N}$ - $O_{i,j}$ is the observed cell
-count. - $N$ is the total sample size.
+\-$p_{i+} = \sum_j \frac{O_{i,j}}{N}$
+
+\- $p_{+j} = \sum_i \frac{O_{i,j}}{N}$
+
+\-$O_{i,j}$ is the observed cell count.
+
+\- $N$ is the total sample size.
 
 Likelihood Ratio Test
-$G^2 = -2\ln \frac{\text{sup}_{H_a}l(p_0)}{\text{sup}_{H_0}l(p_1, p_2)} = -2(n_{+1}\ln(\frac{n_{+1}}{N}) + n_{+2}\ln(\frac{n_{+2}}{N})) + 2(\sum_{ij} n_{ij} \ln(\frac{n_{ij}}{N}))$
+$G^2 = -2\ln \frac{\text{sup}_{H_a}l(p_0)}{\text{sup}_{H_0}l(p_1, p_2)} = -2(n_{+1}\ln(\frac{n_{+1}}{N}) + n_{+2}\ln(\frac{n_{+2}}{N})) + 2(\sum_{ij} n_{ij} \ln(\frac{n_{ij}}{\hat \mu_{ij}}))$
 
 We reject the null hypothesis if $p(X^2 > \chi^2_1) < \alpha$ for the
 Pearson's $\chi^2$ test and if $p(G^2 > \chi^2_1) < \alpha$ for the
@@ -168,7 +171,7 @@ ci
 
 According to this, the risk of men being in favor of abortion is $0.86$
 times that of women. Our confidence interval tells us that the true risk
-ratio lies between $0.78$ and $0.95$ with $95%$ confidence.
+ratio lies between $0.78$ and $0.95$ with 95% confidence.
 
 ## 5
 
@@ -182,16 +185,14 @@ addmargins(tab1)
 addmargins(prop.table(tab1,1),2)
 ```
 
-We can see that the probabilies match what we had found in question 1.
+We can see that the probabilities match what we had found in question 1.
 
 Calculate $X^2$, $G^2$ and p-values
 
 ```{r}
 chisq.test(tab1,correct=FALSE)
-library(MASS) # the MASS package must have been installed
+library(MASS)
 loglm(~gender+opinion,tab1)
-# The function loglm fits a loglinear model, but we leave the details about that.
-# Loglinear models will be handled in assignment 3 but with the function glm instead of loglm.
 ```
 
 Again we can see that the test statistics and p-values match what we had
@@ -221,9 +222,9 @@ addmargins(tab2)
 addmargins(prop.table(tab2,1),2)
 ```
 
-We are performing the Pearsons test and Likelihood ratio test to compare
-the probability of admission for men vs women. Our null hypothesis is
-$H_0: p_{1,1} = p_{2,1}$ and our alternative Hypothesis is
+We are performing the Pearson's test and Likelihood ratio test to
+compare the probability of admission for men vs women. Our null
+hypothesis is $H_0: p_{1,1} = p_{2,1}$ and our alternative Hypothesis is
 $H_a: p_{1,1} \neq p_{2,1}$. We will use $\alpha = 0.05$
 
 ```{r}
@@ -250,7 +251,7 @@ of men to that of women.
 riskratio(tab2)
 ```
 
-From this we see that the probability of men being admitted is $1.26\%$
+From this we see that the probability of men being admitted is $1.26$
 times as high as for women, with the confidence interval being
 $[1.20, 1.31]$.
 
@@ -304,7 +305,7 @@ groups are relatively close, but still differ slightly.
 
 ```{r}
 tab5<- as.table(rbind(c(150000, 10000), c(157000, 10000)))
-dimnames(tab5) <- list(gender = c("women", "men"),opinion = c("favor","against"))
+dimnames(tab5) <- list(gender = c("women", "men"),opinion = c("Admitted","Rejected"))
 addmargins(tab5)
 addmargins(prop.table(tab5,1),2)
 ```
@@ -314,16 +315,16 @@ oddsratio(tab5,rev = "col")
 loglm(gender~opinion, data=tab5)
 ```
 
-From this, we see that the odds ratio is 1.05, but the p-value for the
-null hypothesis: $H_0: p_{1,1} = p_{1,2}$ is zero, indicating that the
-effect of gender on the opinion is statistically significant.
+In this scenario, we see that the odds ratio is 1.05, but the p-value
+for the null hypothesis: $H_0: p_{1,1} = p_{1,2}$ is zero, indicating
+that the effect of gender on the admission is statistically significant.
 
 While the effect is statistically significant, wording it like that can
 be misleading, as it suggests that there is an **important**
 association, while in reality the effect is trivial.
 
-In a case like this, it's good to have the odds ratio, along with the
-confidence interval, which we can see is $[1.017, 1.77]$. This tells the
-ratio is indeed very close to 1, but not exactly 1. while if we had only
-looked at the p-value, we might assume that the odds ratio is not close
-to 1.
+In a case like this, we would report the odds ratio, along with the
+confidence interval, which we can see is $[1.017, 1.77]$. This tells
+that the ratio is indeed very close to 1, but not exactly 1, while if we
+had only looked at the p-value, we might assume that the odds ratio is
+not close to 1.
