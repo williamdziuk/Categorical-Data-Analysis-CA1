@@ -1,0 +1,20 @@
+---
+title: "assignment_2"
+author: "Andri"
+date: "2025-11-27"
+output: pdf_document
+---
+
+```{r}
+library(xtable)
+use<-c("no","no", "yes","yes")
+per<-c("no","yes","no","yes")
+n<-c(265,148,75,22)
+data21 <- data.frame(use,per,n)
+
+data21$use <- as.factor(data21$use)
+data21$per <- as.factor(data21$per)
+model21<-glm(per~use, weights =n, family = binomial(link=logit), data=data21)
+
+```
+

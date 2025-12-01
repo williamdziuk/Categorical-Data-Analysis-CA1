@@ -241,8 +241,8 @@ women.
 oddsratio(tab2, method = "wald")
 ```
 
-The odds of men being admitted is 1.84 that of women. The $95\%$
-confidence interval $[1.62, 2.09]$.
+The odds ratio that we calculated here is the odds of women being rejected is $1.84108$ times that of men. The $95\%$
+confidence interval $[1.624377 , 2.086693]$.
 
 Now we will calculate the risk ratio, between the admission probability
 of men to that of women.
@@ -250,10 +250,9 @@ of men to that of women.
 ```{r}
 riskratio(tab2)
 ```
-
-From this we see that the probability of men being admitted is $1.26$
-times as high as for women, with the confidence interval being
-$[1.20, 1.31]$.
+From this we see that the probability of women being rejected is $1.255303$
+times as high as for men, with the confidence interval being
+$[1.199631 , 1.31356]$.
 
 ## 2
 
@@ -273,6 +272,8 @@ riskratio(tab3)
 
 The risk ratio and odds ratio stay the same. In this case, there are
 small differences because we rounded our table.
+The confidence interval for the odds ratio goes from $[1.624377, 2.086693]$ to $[1.239821, 2.741141]$, that is, it grows larger.
+And the confidence interval for the risk ratio goes from $[1.199631, 1.31356]$ to $[1.087858, 1.44992]$.
 
 Now we repeat this by dividing by $100$
 
@@ -290,6 +291,7 @@ riskratio(tab4)
 ```
 
 The odds and risk ratios stay the same, with some rounding errors.
+The confidence interval for the odds ratio grows even more from $[1.624377, 2.086693]$ to $[0.4972715, 6.243172]$, and the confidence interval for the risk ratio grows as well, from $[1.199631, 1.31356]$ to $[0.7812776, 1.941418]$.
 
 ## 3
 
@@ -304,7 +306,7 @@ This is done by using a large sample size, where the ratios between
 groups are relatively close, but still differ slightly.
 
 ```{r}
-tab5<- as.table(rbind(c(150000, 10000), c(157000, 10000)))
+tab5<- as.table(rbind(c(1000000, 1000000), c(1006000, 1000000)))
 dimnames(tab5) <- list(gender = c("women", "men"),opinion = c("Admitted","Rejected"))
 addmargins(tab5)
 addmargins(prop.table(tab5,1),2)
@@ -315,16 +317,15 @@ oddsratio(tab5,rev = "col")
 loglm(gender~opinion, data=tab5)
 ```
 
-In this scenario, we see that the odds ratio is 1.05, but the p-value
-for the null hypothesis: $H_0: p_{1,1} = p_{1,2}$ is zero, indicating
-that the effect of gender on the admission is statistically significant.
+In this scenario, we see that the odds ratio is $1.00601$, but the p-value
+for the null hypothesis: $H_0: p_{1,1} = p_{1,2}$ is $0.0001267770$ in the Pearson test and $0.0001267753$ in the likelihood ratio test, indicating that the effect of gender on the admission is statistically significant.
 
 While the effect is statistically significant, wording it like that can
 be misleading, as it suggests that there is an **important**
 association, while in reality the effect is trivial.
 
 In a case like this, we would report the odds ratio, along with the
-confidence interval, which we can see is $[1.017, 1.77]$. This tells
+confidence interval, which we can see is $[1.002073, 1.009966]$. This tells
 that the ratio is indeed very close to 1, but not exactly 1, while if we
 had only looked at the p-value, we might assume that the odds ratio is
 not close to 1.
