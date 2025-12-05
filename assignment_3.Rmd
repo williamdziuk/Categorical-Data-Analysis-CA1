@@ -1,0 +1,81 @@
+---
+title: "assignment 3"
+author: "Andri Þór Stefánsson & Will Dziuk"
+date: "2025-12-05"
+output: html_document
+---
+### 1. Fitting models
+We start by reading in the data, creating a saturated model, and showing the summary.
+```{r echo=FALSE}
+setwd("~/projects/uni/categorical_data_analysis/Categorical-Data-Analysis-CA1")
+data3<-read.csv("data_ca3.csv")
+# Saturated model:
+msat<-glm(n~x*y*z*v, family=poisson(link=log), data=data3)
+```
+
+
+```{r}
+summary(msat)
+```
+Since we start by removing higher order terms before moving on to lower order terms, we can see that the x:y:z:v term has a very large p-value, and can therefore be removed.
+
+So now we try a model with the formula: n~(x+y+z+v)^3
+```{r}
+m1<-glm(n~(x+y+z+v)^3, family=poisson(link=log), data=data3)
+summary(m1)
+```
+From this we can see that none of the 3rd order terms are statistically significant, so we remove all of them.
+Now we look at a model with the formula: n~(x+y+z+v)^2.
+```{r}
+m2<-glm(n~(x+y+z+v)^2, family=poisson(link=log), data=data3)
+summary(m2)
+```
+
+Here, we see that the second order terms y:z and y:v are statistically insignificant, and x:z has low significance.
+```{r echo=FALSE}
+m3 <- glm(n~x*y+x*v+x*z+z*v, family=poisson(link=log), data=data3)
+m4 <- glm(n~x*y+x*z+z*v, family=poisson(link=log), data=data3)
+m5 <- glm(n~x+y+z+v, family=poisson(link=log), data=data3)
+```
+
+
+From this, we can create a table:
+```{r echo=FALSE}
+library(knitr)
+models <- c("XYZV", "(X+Y+Z+V)^3", "(X+Y+Z+V)^2", "XY, XV, XZ, ZV", "XY, XZ, ZV", "X, Y, Z, V")
+models_to_check <- list(m1, m2, m3, m4, m5)
+i <- 2
+deviance <- c(0)
+df <- c(0)
+p_value <- c(1)
+aic <- c(AIC(msat))
+for (model in models_to_check){
+  anova_res <- anova(msat, model, test="LRT")
+  deviance[i] <- anova_res$`Resid. Dev`[2]
+  df[i] <- anova_res$Df[2]
+  p_value[i] <- anova_res$`Pr(>Chi)`[2]
+  aic[i] <- AIC(model)
+  i <- i+1
+}
+results <- data.frame(models, deviance, df, p_value, aic)
+kable(results)
+```
+
+### 2. Selecting a model
+To select a model to use, we can look at the AIC, where lower AIC is better.
+In our case, the model with the lowest AIC is m3=(XY, XV, XZ, ZV).
+We decided to choose the model with the lowest AIC.
+
+### 3. 
+```{r}
+summary(m3)
+```
+
+The significant associations are:
+  - x:y (Mother's age : Smoking habits)
+  - x:v (Mother's age : Child survival)
+  - v:z (Child survival : Gestational age)
+  - x:z (Mother's age : Gestational age)
+  
+We 
+
