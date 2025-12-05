@@ -250,8 +250,8 @@ of men to that of women.
 ```{r}
 riskratio(tab2)
 ```
-From this we see that the probability of women being rejected is $1.255303$
-times as high as for men, with the confidence interval being
+From this we see that the risk of women being rejected is $1.255303$
+times as that of men, with the confidence interval being
 $[1.199631 , 1.31356]$.
 
 ## 2
@@ -270,8 +270,8 @@ oddsratio(tab3)
 riskratio(tab3)
 ```
 
-The risk ratio and odds ratio stay the same. In this case, there are
-small differences because we rounded our table.
+The risk ratio and odds ratio stay approximately the same: with the odds of women getting rejected being 1.84108 times that of men, and the risk of women getting rejected being 1.255303 times that of men. The small differences just come from us rounding our table.
+
 The confidence interval for the odds ratio goes from $[1.624377, 2.086693]$ to $[1.239821, 2.741141]$, that is, it grows larger.
 And the confidence interval for the risk ratio goes from $[1.199631, 1.31356]$ to $[1.087858, 1.44992]$.
 
@@ -290,7 +290,8 @@ oddsratio(tab4)
 riskratio(tab4)
 ```
 
-The odds and risk ratios stay the same, with some rounding errors.
+The risk ratio and odds ratio stay approximately the same: with the odds of women getting rejected being 1.700141 times that of men, and the risk of women getting rejected being 1.231579 times that of men. The small differences just come from us rounding our table.
+
 The confidence interval for the odds ratio grows even more from $[1.624377, 2.086693]$ to $[0.4972715, 6.243172]$, and the confidence interval for the risk ratio grows as well, from $[1.199631, 1.31356]$ to $[0.7812776, 1.941418]$.
 
 ## 3
