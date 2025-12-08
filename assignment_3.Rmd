@@ -71,6 +71,7 @@ We decided to choose the model with the lowest AIC.
 summary(m3)
 ```
 
+
 The significant associations are:
   - x:y (Mother's age : Smoking habits)
   - x:v (Mother's age : Child survival)
@@ -111,12 +112,13 @@ beta_lower <- c(ci1_l, ci2_l, -0.35370694, 2.949697)
 beta_upper <- c(ci1_u, ci2_u, 0.02256694, 3.673003)
 odds_ratio_lower <- exp(beta_lower)
 odds_ratio_upper <- exp(beta_upper)
-results_2 <- data.frame(interaction, beta_ml, lower, upper, odds_ratio_lower, odds_ratio_upper)
+results_2 <- data.frame(interaction, beta_ml, beta_lower, beta_upper, odds_ratio_lower, odds_ratio_upper)
 kable(results_2)
 ```
 
+## 4
 
-
+In order to choose our preferred model n~x+y+z we performed the same steps as in question 1. Our model has no interactions, only the single variables. This is interpreted as Child Survival only being impacted by gestational age, age, and smoking habits individually. 
 ```{r}
 logistic_model<- glm(v~ x+y+z, data = data3,family=binomial(link=logit), weights = n)
 
@@ -124,5 +126,27 @@ summary(logistic_model)
 
 ```
 
-In order to choose our preferred model n~x+y+z we performed the same steps as in question 1. Our model has no interactions, only the single variables. This is interpreted as Child Survival only being impacted by gestational age, age, and smoking habits individually. From the summary we can see that smoking habits is not statistically significant, however its inclusion creates a better model, this can be seen by it lowering the AIC value when included.  
+From the summary we can see that smoking habits is not statistically significant, however its inclusion creates a better model, this can be seen by it lowering the AIC value when included. 
+
+
+## 5.
+The corresponding log-linear model would have the formula $n \sim x*y*z + v*(x+y+z)$
+```{r}
+loglin_model <- glm(
+  n ~ x * y * z + v * (x + y + z),
+  family = poisson(link = "log"),
+  data = data3
+)
+```
+
+
+```{r echo=FALSE,}
+print("logistic model:")
+summary(logistic_model)$coef
+print("log linear model:")
+summary(loglin_model)$coef
+```
+
+Here we see the coefficients from both models.
+If we compare coefficients x, y, z from the logistic model to the coefficients: x:v, y:v, z:v, we can see that they have the same estimate and std. Error.
 
