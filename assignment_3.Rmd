@@ -116,3 +116,13 @@ kable(results_2)
 ```
 
 
+
+```{r}
+logistic_model<- glm(v~ x+y+z, data = data3,family=binomial(link=logit), weights = n)
+
+summary(logistic_model)
+
+```
+
+In order to choose our preferred model n~x+y+z we performed the same steps as in question 1. Our model has no interactions, only the single variables. This is interpreted as Child Survival only being impacted by gestational age, age, and smoking habits individually. From the summary we can see that smoking habits is not statistically significant, however its inclusion creates a better model, this can be seen by it lowering the AIC value when included.  
+
