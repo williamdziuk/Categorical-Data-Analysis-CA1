@@ -78,40 +78,53 @@ The significant associations are:
   - v:z (Child survival : Gestational age)
   
 We can see that the interaction term for x:y has an estimate of $-0.40431$ means that 
-the log odds ratio of smoking given mother's age are $-0.40431$.
+the log of the odds ratio describing the association between mother's age (X) and smoking (Y) is $-0.40431$.
 That is,
-$$\theta(smoking|mothers\_age \ge 30) = e^{-0.40431} \cdot \theta(smoking|mothers\_age < 30)$$
-where $\theta$ is the odds.
+$$\frac{P(X=1, y=1)P(X=0, Y=0)}{P(X=1, Y=0)P(X=0, Y=1)} = e^{-0.40431} = 0.6674372$$
+This means that the odds of smoking for older mothers are around $33\%$ lower than for younger mothers.
+Equivalently, the odds of being an older mother among smokers are $0.67$ times those among non-smokers. 
 
-This also goes the other way around, that is:
 
-$$\theta(mothers\_age \ge 30 | smoking) = e^{-0.40431} \cdot \theta(mothers\_age < 30 | smoking)$$
+In a similar way, we see that the log odds ratio for the association between child survival and mother's age are $-0.44752$, so the odds ratio is $e^{-0.44752} = 0.6392114$.
+This means that older women have lower odds of having a surviving child, compared to younger mothers.
+This can also be read as, children who survive have lower odds of having older mothers, compared to non-surviving children.
 
-In a similar way, we see that the log odds ratio for child survival given mother's age are $-0.44752$, so the odds ratio is $e^{-0.44752}$.
+And the log odds ratio for the association between mother's age and gestational age is $-0.16557$, so the odds ratio is $e^{-0.16557} = 0.8474105$.
+This means that older mothers are less likely to have children with lower gestational age compared to younger mothers.
 
-And the log odds ratio for the mother's age given gestational age is $-0.16557$.
+And the last interaction term is the log odds ratio for the association between gestation age and child's survival is $3.31135$, so the odds ratio is $e^{3.31135} = 27.4221204$.
+This means that the odds of child survival are about 27 times higher for higher gestational age compared to lower gestational age.
 
-And the last interaction term is the log odds ratio for gestation age given child's survival, which is equal to the log odds ratio for child's survival given gestation age is $3.31135$, so the odds ratio is $e^{3.31135}$.
+Note that in log-linear models, the odds ratios are symmetric, so the statements can be read the other way around as well.
 
 The $95\%$ confidence intervals can be calculated using $CI = [\hat \beta - z_{0.975} \cdot SE, \hat \beta + z_{0.975} \cdot SE]$, so using the standard errors in the summary, we get the following table.
 ```{r echo=FALSE}
 b1 <- -0.40431
-b2 <--0.44752
+b2 <- -0.44752
+b3 <- -0.16557
+b4 <- 3.31135
 e1 <- 0.09936
 e2 <- 0.17963
+e3 <- 0.09599
+e4 <- 0.18452
 
 ci1_l <- b1 - qnorm(0.975)*e1
-ci2_l <- b2 - qnorm(0.975)*e2
 ci1_u <- b1 + qnorm(0.975)*e1
+ci2_l <- b2 - qnorm(0.975)*e2
 ci2_u <- b2 + qnorm(0.975)*e2
+ci3_l <- b3 - qnorm(0.975)*e3
+ci3_u <- b3 + qnorm(0.975)*e3
+ci4_l <- b4 - qnorm(0.975)*e4
+ci4_u <- b4 + qnorm(0.975)*e4
 
 interaction <- c("xy", "xv", "xz", "vz")
-beta_ml <- c(-0.40431, -0.44752, -0.16557, 3.31135)
-beta_lower <- c(ci1_l, ci2_l, -0.35370694, 2.949697)
-beta_upper <- c(ci1_u, ci2_u, 0.02256694, 3.673003)
-odds_ratio_lower <- exp(beta_lower)
-odds_ratio_upper <- exp(beta_upper)
-results_2 <- data.frame(interaction, beta_ml, beta_lower, beta_upper, odds_ratio_lower, odds_ratio_upper)
+beta_ml <- c(b1, b2, b3, b4)
+beta_lower <- c(ci1_l, ci2_l, ci3_l, ci4_l)
+beta_upper <- c(ci1_u, ci2_u, ci3_u, ci4_u)
+OR_estimate <- exp(beta_ml)
+OR_lower <- exp(beta_lower)
+OR_upper <- exp(beta_upper)
+results_2 <- data.frame(interaction, beta_ml, beta_lower, beta_upper, OR_estimate, OR_lower, OR_upper)
 kable(results_2)
 ```
 
@@ -144,14 +157,16 @@ From the summary we can see that smoking habits is not statistically significant
 
 The coefficients tell us that:
 
-- Gestational age has a strong positive effect, which according to the p-value is highly significant.
-  The odds ratio estimate is $27.3783559$ with a confidence interval of $(19.0660984,	39.3145129)$.
+- The mother's age has a negative effect as well, and that is statistically significant.
+  The odds ratio estimate is $0.6265871$ with a confidence interval of $(0.4400142,	0.8922699)$.
 
 - Smoking has a negative effect, but it is not statistically significant according to the p-value.
   The odds ratio estimate is $0.6552208$ with a confidence interval of $(0.3917819,	1.0957992)$. We can see that the confidence interval overlaps $1$.
+  
+- Gestational age has a strong positive effect, which according to the p-value is highly significant.
+  The odds ratio estimate is $27.3783559$ with a confidence interval of $(19.0660984,	39.3145129)$.
 
-- The mothers's age has a negative effect as well, and that is statistically significant.
-  The odds ratio estimate is $0.6265871$ with a confidence interval of $(0.4400142,	0.8922699)$.
+
 
 ## 5.
 The logistic model has the formula: $v \sim x+y+z$, so out log-linear model must include the terms v:x, v:y, v:z. 

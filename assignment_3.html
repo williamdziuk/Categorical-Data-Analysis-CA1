@@ -563,21 +563,30 @@ ZV). We decided to choose the model with the lowest AIC.</p>
 <p>The significant associations are: - x:y (Mother’s age : Smoking
 habits) - x:v (Mother’s age : Child survival) - x:z (Mother’s age :
 Gestational age) - v:z (Child survival : Gestational age)</p>
-<p>We can see that the interaction term for x:y has an estimate of <span class="math inline">\(-0.40431\)</span> means that the log odds ratio of
-smoking given mother’s age are <span class="math inline">\(-0.40431\)</span>. That is, <span class="math display">\[\theta(smoking|mothers\_age \ge 30) =
-e^{-0.40431} \cdot \theta(smoking|mothers\_age &lt; 30)\]</span> where
-<span class="math inline">\(\theta\)</span> is the odds.</p>
-<p>This also goes the other way around, that is:</p>
-<p><span class="math display">\[\theta(mothers\_age \ge 30 | smoking) =
-e^{-0.40431} \cdot \theta(mothers\_age &lt; 30 | smoking)\]</span></p>
-<p>In a similar way, we see that the log odds ratio for child survival
-given mother’s age are <span class="math inline">\(-0.44752\)</span>, so
-the odds ratio is <span class="math inline">\(e^{-0.44752}\)</span>.</p>
-<p>And the log odds ratio for the mother’s age given gestational age is
-<span class="math inline">\(-0.16557\)</span>.</p>
-<p>And the last interaction term is the log odds ratio for gestation age
-given child’s survival, which is equal to the log odds ratio for child’s
-survival given gestation age is <span class="math inline">\(3.31135\)</span>, so the odds ratio is <span class="math inline">\(e^{3.31135}\)</span>.</p>
+<p>We can see that the interaction term for x:y has an estimate of <span class="math inline">\(-0.40431\)</span> means that the log of the odds
+ratio describing the association between mother’s age (X) and smoking
+(Y) is <span class="math inline">\(-0.40431\)</span>. That is, <span class="math display">\[\frac{P(X=1, y=1)P(X=0, Y=0)}{P(X=1, Y=0)P(X=0,
+Y=1)} = e^{-0.40431} = 0.6674372\]</span> This means that the odds of
+smoking for older mothers are around <span class="math inline">\(33\%\)</span> lower than for younger mothers.
+Equivalently, the odds of being an older mother among smokers are <span class="math inline">\(0.67\)</span> times those among non-smokers.</p>
+<p>In a similar way, we see that the log odds ratio for the association
+between child survival and mother’s age are <span class="math inline">\(-0.44752\)</span>, so the odds ratio is <span class="math inline">\(e^{-0.44752} = 0.6392114\)</span>. This means that
+older women have lower odds of having a surviving child, compared to
+younger mothers. This can also be read as, children who survive have
+lower odds of having older mothers, compared to non-surviving
+children.</p>
+<p>And the log odds ratio for the association between mother’s age and
+gestational age is <span class="math inline">\(-0.16557\)</span>, so the
+odds ratio is <span class="math inline">\(e^{-0.16557} =
+0.8474105\)</span>. This means that older mothers are less likely to
+have children with lower gestational age compared to younger
+mothers.</p>
+<p>And the last interaction term is the log odds ratio for the
+association between gestation age and child’s survival is <span class="math inline">\(3.31135\)</span>, so the odds ratio is <span class="math inline">\(e^{3.31135} = 27.4221204\)</span>. This means that
+the odds of child survival are about 27 times higher for higher
+gestational age compared to lower gestational age.</p>
+<p>Note that in log-linear models, the odds ratios are symmetric, so the
+statements can be read the other way around as well.</p>
 <p>The <span class="math inline">\(95\%\)</span> confidence intervals
 can be calculated using <span class="math inline">\(CI = [\hat \beta -
 z_{0.975} \cdot SE, \hat \beta + z_{0.975} \cdot SE]\)</span>, so using
@@ -588,8 +597,9 @@ the standard errors in the summary, we get the following table.</p>
 <col width="11%" />
 <col width="14%" />
 <col width="14%" />
-<col width="22%" />
-<col width="22%" />
+<col width="15%" />
+<col width="14%" />
+<col width="14%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -597,8 +607,9 @@ the standard errors in the summary, we get the following table.</p>
 <th align="right">beta_ml</th>
 <th align="right">beta_lower</th>
 <th align="right">beta_upper</th>
-<th align="right">odds_ratio_lower</th>
-<th align="right">odds_ratio_upper</th>
+<th align="right">OR_estimate</th>
+<th align="right">OR_lower</th>
+<th align="right">OR_upper</th>
 </tr>
 </thead>
 <tbody>
@@ -607,6 +618,7 @@ the standard errors in the summary, we get the following table.</p>
 <td align="right">-0.40431</td>
 <td align="right">-0.5990520</td>
 <td align="right">-0.2095680</td>
+<td align="right">0.6674372</td>
 <td align="right">0.5493321</td>
 <td align="right">0.8109345</td>
 </tr>
@@ -615,6 +627,7 @@ the standard errors in the summary, we get the following table.</p>
 <td align="right">-0.44752</td>
 <td align="right">-0.7995883</td>
 <td align="right">-0.0954517</td>
+<td align="right">0.6392114</td>
 <td align="right">0.4495140</td>
 <td align="right">0.9089623</td>
 </tr>
@@ -623,16 +636,18 @@ the standard errors in the summary, we get the following table.</p>
 <td align="right">-0.16557</td>
 <td align="right">-0.3537069</td>
 <td align="right">0.0225669</td>
+<td align="right">0.8474105</td>
 <td align="right">0.7020807</td>
 <td align="right">1.0228235</td>
 </tr>
 <tr class="even">
 <td align="left">vz</td>
 <td align="right">3.31135</td>
-<td align="right">2.9496970</td>
-<td align="right">3.6730030</td>
-<td align="right">19.1001655</td>
-<td align="right">39.3699565</td>
+<td align="right">2.9496974</td>
+<td align="right">3.6730026</td>
+<td align="right">27.4221204</td>
+<td align="right">19.1001740</td>
+<td align="right">39.3699390</td>
 </tr>
 </tbody>
 </table>
@@ -709,16 +724,16 @@ significant, however its inclusion creates a better model, this can be
 seen by it lowering the AIC value when included.</p>
 <p>The coefficients tell us that:</p>
 <ul>
-<li><p>Gestational age has a strong positive effect, which according to
-the p-value is highly significant. The odds ratio estimate is <span class="math inline">\(27.3783559\)</span> with a confidence interval of
-<span class="math inline">\((19.0660984,   39.3145129)\)</span>.</p></li>
+<li><p>The mother’s age has a negative effect as well, and that is
+statistically significant. The odds ratio estimate is <span class="math inline">\(0.6265871\)</span> with a confidence interval of
+<span class="math inline">\((0.4400142, 0.8922699)\)</span>.</p></li>
 <li><p>Smoking has a negative effect, but it is not statistically
 significant according to the p-value. The odds ratio estimate is <span class="math inline">\(0.6552208\)</span> with a confidence interval of
 <span class="math inline">\((0.3917819, 1.0957992)\)</span>. We can see
 that the confidence interval overlaps <span class="math inline">\(1\)</span>.</p></li>
-<li><p>The mothers’s age has a negative effect as well, and that is
-statistically significant. The odds ratio estimate is <span class="math inline">\(0.6265871\)</span> with a confidence interval of
-<span class="math inline">\((0.4400142, 0.8922699)\)</span>.</p></li>
+<li><p>Gestational age has a strong positive effect, which according to
+the p-value is highly significant. The odds ratio estimate is <span class="math inline">\(27.3783559\)</span> with a confidence interval of
+<span class="math inline">\((19.0660984,   39.3145129)\)</span>.</p></li>
 </ul>
 </div>
 <div id="section-2" class="section level2">
