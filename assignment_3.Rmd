@@ -7,7 +7,6 @@ output: html_document
 ### 1. Fitting models
 We start by reading in the data, creating a saturated model, and showing the summary.
 ```{r echo=FALSE}
-setwd("~/projects/uni/categorical_data_analysis/Categorical-Data-Analysis-CA1")
 data3<-read.csv("data_ca3.csv")
 # Saturated model:
 msat<-glm(n~x*y*z*v, family=poisson(link=log), data=data3)
@@ -121,16 +120,42 @@ kable(results_2)
 In order to choose our preferred model n~x+y+z we performed the same steps as in question 1. Our model has no interactions, only the single variables. This is interpreted as Child Survival only being impacted by gestational age, age, and smoking habits individually. 
 ```{r}
 logistic_model<- glm(v~ x+y+z, data = data3,family=binomial(link=logit), weights = n)
-
-summary(logistic_model)
-
 ```
 
+We use the coefficient estimates, and standard errors to compute $95\%$ Wald confidence intervals for the coefficients, from which we can calculate the odds ratios, and $95\%$ confidence intervals for the odds ratios.
+From that, we get the following table:
+
+```{r, echo=FALSE}
+coefs <- summary(logistic_model)$coef
+coef <- c("x", "y", "z")
+estimate <- coefs[-1,1]
+std_error <- coefs[-1,2]
+p_value <- coefs[-1, 4]
+lower <- estimate - qnorm(0.975)*std_error
+upper <-estimate + qnorm(0.975)*std_error
+OR_estimate <- exp(estimate)
+OR_lower <- exp(lower)
+OR_upper <- exp(upper)
+results_4 <- data.frame(estimate, lower, upper, OR_estimate, OR_lower, OR_upper, p_value)
+kable(results_4)
+```
 From the summary we can see that smoking habits is not statistically significant, however its inclusion creates a better model, this can be seen by it lowering the AIC value when included. 
 
 
+The coefficients tell us that:
+
+- Gestational age has a strong positive effect, which according to the p-value is highly significant.
+  The odds ratio estimate is $27.3783559$ with a confidence interval of $(19.0660984,	39.3145129)$.
+
+- Smoking has a negative effect, but it is not statistically significant according to the p-value.
+  The odds ratio estimate is $0.6552208$ with a confidence interval of $(0.3917819,	1.0957992)$. We can see that the confidence interval overlaps $1$.
+
+- The mothers's age has a negative effect as well, and that is statistically significant.
+  The odds ratio estimate is $0.6265871$ with a confidence interval of $(0.4400142,	0.8922699)$.
+
 ## 5.
-The corresponding log-linear model would have the formula $n \sim x*y*z + v*(x+y+z)$
+The logistic model has the formula: $v \sim x+y+z$, so out log-linear model must include the terms v:x, v:y, v:z. 
+Therefore the corresponding log-linear model would have the formula $n \sim x*y*z + v*(x+y+z)$
 ```{r}
 loglin_model <- glm(
   n ~ x * y * z + v * (x + y + z),
@@ -149,4 +174,4 @@ summary(loglin_model)$coef
 
 Here we see the coefficients from both models.
 If we compare coefficients x, y, z from the logistic model to the coefficients: x:v, y:v, z:v, we can see that they have the same estimate and std. Error.
-
+The remaining parameters in the log-linear model do not correspond to logistic regression parameters and therefore they differ.
