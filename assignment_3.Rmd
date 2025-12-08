@@ -2,43 +2,55 @@
 title: "assignment 3"
 author: "Andri Þór Stefánsson & Will Dziuk"
 date: "2025-12-05"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
+
 ### 1. Fitting models
+
 We start by reading in the data, creating a saturated model, and showing the summary.
+
 ```{r echo=FALSE}
 data3<-read.csv("data_ca3.csv")
 # Saturated model:
 msat<-glm(n~x*y*z*v, family=poisson(link=log), data=data3)
 ```
 
-
 ```{r}
 summary(msat)
 ```
+
 Since we start by removing higher order terms before moving on to lower order terms, we can see that the x:y:z:v term has a very large p-value, and can therefore be removed.
 
-So now we try a model with the formula: n~(x+y+z+v)^3
+So now we try a model with the formula: n\~(x+y+z+v)\^3
+
 ```{r}
 m1<-glm(n~(x+y+z+v)^3, family=poisson(link=log), data=data3)
 summary(m1)
 ```
+
 From this we can see that none of the 3rd order terms are statistically significant, so we remove all of them.
-Now we look at a model with the formula: n~(x+y+z+v)^2.
+Now we look at a model with the formula: n\~(x+y+z+v)\^2.
+
 ```{r}
 m2<-glm(n~(x+y+z+v)^2, family=poisson(link=log), data=data3)
 summary(m2)
 ```
 
 Here, we see that the second order terms y:z and y:v are statistically insignificant, and x:z has low significance.
+
 ```{r echo=FALSE}
 m3 <- glm(n~x*y+x*v+x*z+z*v, family=poisson(link=log), data=data3)
 m4 <- glm(n~x*y+x*z+z*v, family=poisson(link=log), data=data3)
 m5 <- glm(n~x+y+z+v, family=poisson(link=log), data=data3)
 ```
 
-
 From this, we can create a table:
+
 ```{r echo=FALSE}
 library(knitr)
 models <- c("XYZV", "(X+Y+Z+V)^3", "(X+Y+Z+V)^2", "XY, XV, XZ, ZV", "XY, XZ, ZV", "X, Y, Z, V")
@@ -61,29 +73,30 @@ kable(results)
 ```
 
 ### 2. Selecting a model
+
 To select a model to use, we can look at the AIC, where lower AIC is better.
 In our case, the model with the lowest AIC is m3=(XY, XV, XZ, ZV).
 We decided to choose the model with the lowest AIC.
 
-### 3. 
+### 3. Interpret
+
 ```{r}
 summary(m3)
 ```
 
-
 The significant associations are:
-  - x:y (Mother's age : Smoking habits)
-  - x:v (Mother's age : Child survival)
-  - x:z (Mother's age : Gestational age)
-  - v:z (Child survival : Gestational age)
-  
-We can see that the interaction term for x:y has an estimate of $-0.40431$ means that 
-the log of the odds ratio describing the association between mother's age (X) and smoking (Y) is $-0.40431$.
-That is,
-$$\frac{P(X=1, y=1)P(X=0, Y=0)}{P(X=1, Y=0)P(X=0, Y=1)} = e^{-0.40431} = 0.6674372$$
-This means that the odds of smoking for older mothers are around $33\%$ lower than for younger mothers.
-Equivalently, the odds of being an older mother among smokers are $0.67$ times those among non-smokers. 
 
+\- x:y (Mother's age : Smoking habits)
+
+\- x:v (Mother's age : Child survival)
+
+\- x:z (Mother's age : Gestational age)
+
+\- v:z (Child survival : Gestational age)
+
+We can see that the interaction term for x:y has an estimate of $-0.40431$ means that the log of the odds ratio describing the association between mother's age (X) and smoking (Y) is $-0.40431$.
+That is, $$\frac{P(X=1, y=1)P(X=0, Y=0)}{P(X=1, Y=0)P(X=0, Y=1)} = e^{-0.40431} = 0.6674372$$ This means that the odds of smoking for older mothers are around $33\%$ lower than for younger mothers.
+Equivalently, the odds of being an older mother among smokers are $0.67$ times those among non-smokers.
 
 In a similar way, we see that the log odds ratio for the association between child survival and mother's age are $-0.44752$, so the odds ratio is $e^{-0.44752} = 0.6392114$.
 This means that older women have lower odds of having a surviving child, compared to younger mothers.
@@ -98,6 +111,11 @@ This means that the odds of child survival are about 27 times higher for higher 
 Note that in log-linear models, the odds ratios are symmetric, so the statements can be read the other way around as well.
 
 The $95\%$ confidence intervals can be calculated using $CI = [\hat \beta - z_{0.975} \cdot SE, \hat \beta + z_{0.975} \cdot SE]$, so using the standard errors in the summary, we get the following table.
+
+\
+\
+\
+
 ```{r echo=FALSE}
 b1 <- -0.40431
 b2 <- -0.44752
@@ -128,9 +146,12 @@ results_2 <- data.frame(interaction, beta_ml, beta_lower, beta_upper, OR_estimat
 kable(results_2)
 ```
 
-## 4
+## 4 Logistic Regression
 
-In order to choose our preferred model n~x+y+z we performed the same steps as in question 1. Our model has no interactions, only the single variables. This is interpreted as Child Survival only being impacted by gestational age, age, and smoking habits individually. 
+In order to choose our preferred model n\~x+y+z we performed the same steps as in question 1.
+Our model has no interactions, only the single variables.
+This is interpreted as Child Survival only being impacted by gestational age, age, and smoking habits individually.
+
 ```{r}
 logistic_model<- glm(v~ x+y+z, data = data3,family=binomial(link=logit), weights = n)
 ```
@@ -152,25 +173,26 @@ OR_upper <- exp(upper)
 results_4 <- data.frame(estimate, lower, upper, OR_estimate, OR_lower, OR_upper, p_value)
 kable(results_4)
 ```
-From the summary we can see that smoking habits is not statistically significant, however its inclusion creates a better model, this can be seen by it lowering the AIC value when included. 
 
+From the summary we can see that smoking habits is not statistically significant, however its inclusion creates a better model, this can be seen by it lowering the AIC value when included.
 
 The coefficients tell us that:
 
-- The mother's age has a negative effect as well, and that is statistically significant.
-  The odds ratio estimate is $0.6265871$ with a confidence interval of $(0.4400142,	0.8922699)$.
+-   The mother's age has a negative effect as well, and that is statistically significant.
+    The odds ratio estimate is $0.6265871$ with a confidence interval of $(0.4400142, 0.8922699)$.
 
-- Smoking has a negative effect, but it is not statistically significant according to the p-value.
-  The odds ratio estimate is $0.6552208$ with a confidence interval of $(0.3917819,	1.0957992)$. We can see that the confidence interval overlaps $1$.
-  
-- Gestational age has a strong positive effect, which according to the p-value is highly significant.
-  The odds ratio estimate is $27.3783559$ with a confidence interval of $(19.0660984,	39.3145129)$.
+-   Smoking has a negative effect, but it is not statistically significant according to the p-value.
+    The odds ratio estimate is $0.6552208$ with a confidence interval of $(0.3917819, 1.0957992)$.
+    We can see that the confidence interval overlaps $1$.
 
+-   Gestational age has a strong positive effect, which according to the p-value is highly significant.
+    The odds ratio estimate is $27.3783559$ with a confidence interval of $(19.0660984, 39.3145129)$.
 
+## 5. Model Relationship 
 
-## 5.
-The logistic model has the formula: $v \sim x+y+z$, so out log-linear model must include the terms v:x, v:y, v:z. 
+The logistic model has the formula: $v \sim x+y+z$, so out log-linear model must include the terms v:x, v:y, v:z.
 Therefore the corresponding log-linear model would have the formula $n \sim x*y*z + v*(x+y+z)$
+
 ```{r}
 loglin_model <- glm(
   n ~ x * y * z + v * (x + y + z),
@@ -178,7 +200,6 @@ loglin_model <- glm(
   data = data3
 )
 ```
-
 
 ```{r echo=FALSE,}
 print("logistic model:")
@@ -188,5 +209,6 @@ summary(loglin_model)$coef
 ```
 
 Here we see the coefficients from both models.
-If we compare coefficients x, y, z from the logistic model to the coefficients: x:v, y:v, z:v, we can see that they have the same estimate and std. Error.
+If we compare coefficients x, y, z from the logistic model to the coefficients: x:v, y:v, z:v, we can see that they have the same estimate and std.
+Error.
 The remaining parameters in the log-linear model do not correspond to logistic regression parameters and therefore they differ.
