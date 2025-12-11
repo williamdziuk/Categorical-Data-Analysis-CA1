@@ -1,0 +1,30 @@
+---
+title: "assignment 4"
+author: "Andri Þór Stefánsson & Will Dziuk"
+date: "2025-12-11"
+output: pdf_document
+---
+
+```{r echo=FALSE}
+setwd("~/projects/uni/categorical_data_analysis/Categorical-Data-Analysis-CA1")
+data4 <- read.csv("data_ca4.csv")
+# Combine categories (this should be done for one more variable)
+table(data4$v5)
+data4$v5[data4$v5>1] <- 0
+table(data4$v5)
+dim(data4)
+```
+```{r}
+m_empty <- glm(v2~1, family=binomial,data=data4) # Empty model (only intercept)
+m_full <- glm(v2~., family=binomial,data=data4) # Full model (all explanatory variables)
+summary(m_full)
+
+mstep1_AIC <- step(m_empty, direction="forward", scope = list(upper = m_full), trace = TRUE)
+mstep2_AIC <- step(m_full, direction="backward", trace = FALSE)
+mstep3_AIC <- step(m_full, direction="both", trace = FALSE)
+AIC(mstep1_AIC)
+AIC(mstep2_AIC)
+AIC(mstep3_AIC)
+```
+
+
