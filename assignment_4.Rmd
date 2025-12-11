@@ -6,25 +6,143 @@ output: pdf_document
 ---
 
 ```{r echo=FALSE}
+library(knitr)
+library(dplyr)
+library(ResourceSelection)
+set.seed(2025)
 setwd("~/projects/uni/categorical_data_analysis/Categorical-Data-Analysis-CA1")
 data4 <- read.csv("data_ca4.csv")
-# Combine categories (this should be done for one more variable)
-table(data4$v5)
+```
+
+## 1.
+
+Data was loaded, and group v5 (Ethnicity) was combined, from 3 categories to 2, due to low cell counts.
+Group 21 (Consciousness level) was also combined from 3 categories to 2 for the same reason.
+```{r}
 data4$v5[data4$v5>1] <- 0
-table(data4$v5)
-dim(data4)
+data4$v21[data4$v21>1] <- 1
+```
+
+We use backwards elimination to select a model, starting with the full model, and removing interaction terms until we find the best model.
+
+Note that we remove v1 (Patient ID) from the model full model.
+
+```{r}
+m_full <- glm(v2~.-v1, family=binomial,data=data4)
+chosen_model <- step(m_full, direction="backward", trace = FALSE)
+```
+
+From the following model, we can calculate the ODDS ratio from parameters by using the formula: $$\theta_i = e^\beta_i$$.
+The Confidence intervals can be found using Wald Intervals: 
+$$CI = [e^{\beta_i - 1.96\cdot SE_i}, e^{\beta_i + 1.96\cdot SE_i}]$$
+
+The factors that affect the probability are listed in the following table, ordered by significance level. The odds and odds confidence intervals are also listed in the table.
+```{r echo=FALSE}
+coefs <- summary(chosen_model)$coef
+variables  <- c("(Intercept)", "Age", "Cancer", "Blood Pressure", "Type of Admission", "Blood PH", "Blood CO2", "Conciousness level")
+estimate <- coefs[,1]
+std_error <- coefs[,2]
+p_value <- coefs[,4]
+OR <- exp(estimate)
+OR_lower <- exp(estimate - qnorm(0.975)*std_error)
+OR_upper <- exp(estimate + qnorm(0.975)*std_error)
+results <- data.frame(estimate, std_error, p_value, OR, OR_lower, OR_upper, row.names=variables)
+results <- results %>% arrange(p_value)
+kable(results)
+```
+
+As an example, this shows us that the odds of dying are $89.6783468$ (CI = [12.2868176, 654.5393706]) higher when you are not awake, compared to when you are awake.
+
+All other categorical factors can be interpreted in the same way, using the odds ratio and confidence intervals.
+
+The age coefficient tells us that the odds of dying are multiplied by $1.0436083$ (CI = [1.0159449,	1.0720251]) for each year increase of the patient's age.
+
+The blood pressure coefficient is the only other continuous variable in the model, and can be interpreted in the same way, with the odds of dying being multiplied by $0.9855667$ (CI=	[0.9719801,	0.9993434]) by each unit increase in blood pressure.
+
+
+## 2. 
+```{r}
+model_predictions <- predict(chosen_model, type="response")
+hoslem.test(
+  data4$v2,
+  model_predictions,
+  g=10
+)
+```
+In a Hosmer and Lemeshow test we test the null hypothesis that the model fits the data.
+From this, we get a p-value of $0.5131$, meaning that we fail to reject the null hypothesis.
+
+## 3. 
+```{r}
+pred01_full <- ifelse(model_predictions > 0.5, 1, 0)
+confmatrix_1 <- table(1-data4$v2,1-pred01_full)
+dimnames(confmatrix_1) <- list(Actual = c("Not-survive", "Survive"),
+Predicted = c("Not-survive", "Survive"))
+confmatrix_1
+```
+
+
+```{r echo=FALSE}
+n <- sum(confmatrix_1)
+n1_1 <- sum(confmatrix_1[1,])
+n2_1 <- sum(confmatrix_1[2,])
+accuracy_1 <- (confmatrix_1[1,1]+confmatrix_1[2,2])/n
+sensitivity_1 <- confmatrix_1[1,1]/n1_1
+specificity_1 <- confmatrix_1[2,2]/n2_1
+cat("accuracy: ", accuracy_1)
+cat("sensitivity: ", sensitivity_1)
+cat("specificity: ", specificity_1)
+```
+From this, we see that the specificity is high, but the sensitivity is low.
+From this, we can try lowering the threshold, which should result in more predictions of not surviving, heightening the sensitivity.
+```{r}
+pred02 <- ifelse(model_predictions > 0.25, 1, 0) # Binary classification, cut-off = 0.5
+confmatrix_2 <- table(1-data4$v2,1-pred02)
+dimnames(confmatrix_2) <- list(Actual = c("Not-survive", "Survive"),
+Predicted = c("Not-survive", "Survive"))
+confmatrix_2
+```
+
+
+```{r echo=FALSE}
+n <- sum(confmatrix_2)
+n1_2 <- sum(confmatrix_2[1,])
+n2_2 <- sum(confmatrix_2[2,])
+accuracy_2 <- (confmatrix_2[1,1]+confmatrix_2[2,2])/n
+sensitivity_2 <- confmatrix_2[1,1]/n1_2
+specificity_2 <- confmatrix_2[2,2]/n2_2
+cat("accuracy: ", accuracy_2)
+cat("sensitivity: ", sensitivity_2)
+cat("specificity: ", specificity_2)
+```
+
+```{r}
+pred03 <- ifelse(model_predictions > 0.75, 1, 0) # Binary classification, cut-off = 0.5
+confmatrix_3 <- table(1-data4$v2,1-pred03)
+dimnames(confmatrix_3) <- list(Actual = c("Not-survive", "Survive"),
+Predicted = c("Not-survive", "Survive"))
+confmatrix_3
+```
+
+
+```{r echo=FALSE}
+n <- sum(confmatrix_3)
+n1_3 <- sum(confmatrix_3[1,])
+n2_3 <- sum(confmatrix_3[2,])
+accuracy_3 <- (confmatrix_3[1,1]+confmatrix_3[2,2])/n
+sensitivity_3 <- confmatrix_3[1,1]/n1_3
+specificity_3 <- confmatrix_3[2,2]/n2_3
+cat("accuracy: ", accuracy_3)
+cat("sensitivity: ", sensitivity_3)
+cat("specificity: ", specificity_3)
 ```
 ```{r}
-m_empty <- glm(v2~1, family=binomial,data=data4) # Empty model (only intercept)
-m_full <- glm(v2~., family=binomial,data=data4) # Full model (all explanatory variables)
-summary(m_full)
+threshold <- c("0.5", "0.25", "0.75")
+accuracy <- c(accuracy_1, accuracy_2, accuracy_3)
+sesnsitivity <- c(sensitivity_1, sensitivity_2, sensitivity_3)
+specificity <- c(specificity_1, specificity_2, specificity_3)
 
-mstep1_AIC <- step(m_empty, direction="forward", scope = list(upper = m_full), trace = TRUE)
-mstep2_AIC <- step(m_full, direction="backward", trace = FALSE)
-mstep3_AIC <- step(m_full, direction="both", trace = FALSE)
-AIC(mstep1_AIC)
-AIC(mstep2_AIC)
-AIC(mstep3_AIC)
+acc_results <- data.frame(threshold, accuracy, sesnsitivity, specificity)
+kable(acc_results)
 ```
-
 
