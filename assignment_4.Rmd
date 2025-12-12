@@ -151,7 +151,7 @@ kable(acc_results)
 ## 4.
 
 
-```{r}
+```{r, message=FALSE}
 #Plot full model ROC
 predprob_full<- predict(m_full, type = "response")
 full_model_ROC <- roc(data4$v2, predprob_full)
@@ -166,11 +166,13 @@ plot(chosen_model_ROC,legacy.axes = TRUE,print.auc = T)
 #Third Model
 
 ```
+Here we can see that the AUC of the full model is closer to 1 than that of our chosen model. 
+
 
 
 ## 5.
 
-```{r}
+```{r, message=FALSE}
 #Create function to perform LOOCV for any model formula
 LOOCV <- function(model_formula){
   predprob_LOOCV <- numeric(nrow(data4)) # Create a vector for the predicted values
@@ -188,15 +190,22 @@ LOOCV <- function(model_formula){
 }
 
 #Full Model LOOCV AUC
-auc(roc(data4$v2, LOOCV(v2~.-v1)))
+full_model_loocv_auc <- auc(roc(data4$v2, LOOCV(v2~.-v1)))
 
 #Chosen Model LOOCV AUC
-auc(roc(data4$v2, LOOCV(v2 ~ v3 + v7 + v11 + v14 + v17 + v18 + v21)))
+chosen_model_loocv_auc <- auc(roc(data4$v2, LOOCV(v2 ~ v3 + v7 + v11 + v14 + v17 + v18 + v21)))
 
 #Third Model LOOCV AUC
 
 
+#Make Kable
+loocv_aucs <- c(full_model_loocv_auc,chosen_model_loocv_auc)
+loocv_models <- c("Full Model", "Chosen Model")
+loocv_results <- data.frame(loocv_models, loocv_aucs)
+kable(loocv_results)
 ```
+Here we can see that the AUC created by LOOCV is closer to 1 for our chosen model and less for the full model. This is a change from the non-validated AUC calculation.
+
 
 
 
