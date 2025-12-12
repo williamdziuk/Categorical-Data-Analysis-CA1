@@ -9,8 +9,9 @@ output: pdf_document
 library(knitr)
 library(dplyr)
 library(ResourceSelection)
+library(pROC)
 set.seed(2025)
-setwd("~/projects/uni/categorical_data_analysis/Categorical-Data-Analysis-CA1")
+#setwd("~/projects/uni/categorical_data_analysis/Categorical-Data-Analysis-CA1")
 data4 <- read.csv("data_ca4.csv")
 ```
 
@@ -145,4 +146,58 @@ specificity <- c(specificity_1, specificity_2, specificity_3)
 acc_results <- data.frame(threshold, accuracy, sesnsitivity, specificity)
 kable(acc_results)
 ```
+
+
+## 4.
+
+
+```{r}
+#Plot full model ROC
+predprob_full<- predict(m_full, type = "response")
+full_model_ROC <- roc(data4$v2, predprob_full)
+plot(full_model_ROC,legacy.axes = TRUE,print.auc = TRUE)
+
+
+#Plot chosen model ROC
+chosen_model_ROC <- roc(data4$v2, model_predictions)
+plot(chosen_model_ROC,legacy.axes = TRUE,print.auc = T)
+
+
+#Third Model
+
+```
+
+
+## 5.
+
+```{r}
+#Create function to perform LOOCV for any model formula
+LOOCV <- function(model_formula){
+  predprob_LOOCV <- numeric(nrow(data4)) # Create a vector for the predicted values
+  for (i in 1:nrow(data4)) {
+# Create training and validation sets
+    data_training <- data4[-i,]
+    data_validation <- data4[i, ,drop=FALSE]
+# Fit the model on the training data
+    m1<-glm(model_formula, family=binomial,data=data_training)
+
+# Predict the value for the held-out observation
+    predprob_LOOCV[i] <- predict(m1, newdata = data_validation, type = "response")
+  }
+  return(predprob_LOOCV)
+}
+
+#Full Model LOOCV AUC
+auc(roc(data4$v2, LOOCV(v2~.-v1)))
+
+#Chosen Model LOOCV AUC
+auc(roc(data4$v2, LOOCV(v2 ~ v3 + v7 + v11 + v14 + v17 + v18 + v21)))
+
+#Third Model LOOCV AUC
+
+
+```
+
+
+
 
