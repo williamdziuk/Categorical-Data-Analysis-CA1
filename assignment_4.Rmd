@@ -275,3 +275,31 @@ kable(tab)
 ```
 
 We can see the the AUC for our decision tree is slightly lower than the AUC for the full model, and our chosen model.
+
+
+
+
+## 3
+```{r}
+predprob_LOOCV_tm <- numeric(nrow(data4))
+
+for (i in 1:nrow(data4)) {
+# Create training and validation sets
+  data_training <- data4[-i,]
+  data_validation <- data4[i, ,drop=FALSE]
+# Fit the model on the training data
+  tm <- rpart(v2 ~.-v1,method = "class", data=data_training, parms = list(split = "information"), cp = 0.0001)
+
+
+# Predict the value for the held-out observation
+  predprob_LOOCV_tm[i] <- predict(tm,newdata = data_validation,type = "prob")[,2]
+}
+
+auc(roc(data4$v2,predprob_LOOCV_tm))
+
+
+```
+
+
+
+
