@@ -231,29 +231,47 @@ Our chosen model however, has a similar AUC between both methods.
 # 4:2
 
 ## 1
-```{r}
+After trying different cp-values, we found that decreasing the cp, will increase model complexity by creating more splits.
+This makes sense because the model will only add a split if the model error decreases by at least the cp.
+We noticed that "gini" will usually result in a model with fewer splits, than information, for low cp-values.
+
+We ended up choosing a model with "gini" and $cp=0.001$.
+We chose "gini" over "information" because it resulted in an easier model to interpret, 
+and we chose $cp=0.01$ because we saw that the model didn't change when lowering it further.
+
+```{r echo=FALSE}
 library(rpart)
 library(rpart.plot)
 
-#Fitting a decision tree model
-tm <- rpart(v2 ~.,method = "class", data=data4, parms = list(split = "information"), cp = 0.1)
-# use split = "gini" or split = "information"
-# cp "complexity parameter" can be adjusted
+tm <- rpart(v2 ~.-v1,method = "class", data=data4, parms = list(split = "gini"), cp = 0.001)
 
 rpart.plot(tm, digits=3) #Plot the decision tree
 ```
+This model starts by checkong the v21 parameter (consciousness level). If it's 1 (uncinscious or coma), then the model estimates the probability of death as $0.867$.
+If $v21=1$ (awake), then it moves on to the next split, and checks the value of v11 (Blood pressure).
+If the blood pressure is higher or equal to 88, then the model estimates the probability of death as $0.667$.
+If the blood pressure is lower than 88, then it moves on to the next split, and checks the value of v3 (age).
+If the age is lower than 75, then the model estimates the probability of death as $0.079$.
+If the age is higher than or equal to 75, the model checks v12 (heart rate).
+If the heart rate is lower than 78, the model says the probability of death is $0.000$.
+If it's higher, the model checks v11 (Blood pressure) again.
+If it's higher or equal to 137, then the probability of death is $0.167$, and otherwise the probability if $0.533$.
 ## 2.
 
 
+```{r echo=FALSE}
+predprob_tm <- predict(tm, type="prob")[,2]
+tm_roc <- roc(data4$v2, predprob_tm)
+plot(tm_roc, legacy.axes=TRUE, print.auc=TRUE)
+title("Decision tree ROC curve\n\n")
+```
+Here, we see the ROC curve along with the AUC for the decision tree.
+
 ```{r}
-tm_full <- rpart(v2 ~.,method = "class", data=data4, parms = list(split = "information"), cp = 0.1)
-
-tm_chosen <- rpart(v2 ~ v3 + v7 + v11 + v14 + v17 + v18 + v21 ,method = "class", data=data4, parms = list(split = "information"), cp = 0.1)
-  
-tm_simple <- rpart(v2 ~ v21 ,method = "class", data=data4, parms = list(split = "information"), cp = 0.1)
-
-rpart.plot(tm_full, digits=3)
-rpart.plot(tm_chosen, digits=3)
-rpart.plot(tm_simple, digits=3)
+model <- c("Decision tree","Full model", "Chosen Model", "Simple model")
+AUC <- c(auc(tm_roc), auc(full_model_ROC), auc(chosen_model_ROC), auc(simple_model_ROC))
+tab <- data.frame(model, AUC)
+kable(tab)
 ```
 
+We can see the the AUC for our decision tree is slightly lower than the AUC for the full model, and our chosen model.
